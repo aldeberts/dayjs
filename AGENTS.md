@@ -12,9 +12,9 @@ TZ=UTC npx jest test/plugin/utc.test.js --coverage=false   # one file
 NODE_OPTIONS=--openssl-legacy-provider npm run build       # dist files + size check
 ```
 
-- **Always prefix tests with `TZ=UTC`.** CI runs in UTC. Some tests depend on the host timezone: on a US-Pacific machine, plain `npm test` fails 6 tests in `dayOfYear`, `localizedFormat` and `timezone` before you change anything.
+- **Prefix test commands with `TZ=UTC`** (CI's timezone). Without it, tests fail if you are in a different timezone.
 - `npm test` runs the two timezone test files under several `TZ`s, then the whole suite with a **100% line-coverage gate** over `src/**`. A new uncovered line in `src/` fails the run even when every test passes.
-- On Node 17+, `npm run build` crashes in `size-limit` (`ERR_OSSL_EVP_UNSUPPORTED`) unless you set `NODE_OPTIONS` as above. The core `dayjs.min.js` must stay under **2.99 KB** gzipped (it's 2.78 now). You don't need to build for normal changes, because tests run against `src/`.
+- On Node 17+, `npm run build` crashes in `size-limit` (`ERR_OSSL_EVP_UNSUPPORTED`) unless you set `NODE_OPTIONS` as above. The core `dayjs.min.js` must stay under **2.99 KB** gzipped. You don't need to build for normal changes, because tests run against `src/`.
 
 ## Layout
 
@@ -44,7 +44,7 @@ export default (o, c, d) => {        // option, Dayjs class, dayjs factory
 - Every plugin needs `types/plugin/<name>.d.ts` (see `isToday.d.ts`), or `test/plugin/declarations.test.js` fails.
 - In the core, don't add runtime dependencies or ES2017+ built-ins like `padStart`. Babel transpiles syntax but doesn't polyfill.
 
-**Locales.** Copy `src/locale/de.js`. `test/locale/keys.test.js` checks every locale against these rules:
+**Locales.** Copy `src/locale/de.js`. `test/locale/keys.test.js` checks every locale against most of these rules:
 
 - Line 1 must be `// <English name> [<code>]`. The build also parses this line to generate `locale.json`.
 - `name` must equal the filename: lowercase, with a hyphen for the region (`zh-cn`).
